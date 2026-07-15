@@ -2,6 +2,7 @@ const User = require("../models/User");
 const bcrypt = require('bcrypt');
 const registerUser = async (req,res) =>{
     const {name, email, password, role } = req.body;
+    console.log(req.body);
     if (!name || !email || !role || !password){
         return res.status(400).json({
             message: "All fields are required"
@@ -33,4 +34,38 @@ const registerUser = async (req,res) =>{
     }
  
 }
-module.exports = {registerUser};
+const loginUser = async (req,res) => {
+    const { email, password } = req.body;
+    console.log(req.body);
+    if (!email || !password){
+        return res.status(400).json({
+            message:"all fields are required"
+        });
+    }
+    try {
+        const user = await User.findOne({
+        email
+        });
+        if (!user){
+            return res.status(401).json({
+                message:"Invalid email or password"
+            });
+        }
+        const canLogin = await bcrypt.compare(password,user.password);
+        if(!canLogin){
+            return res.status(401).json({
+                message:"Invalid email or password"
+            });
+        }
+        return res.status(200).json({
+            message:"Login sucessful"
+        });
+        
+    } catch (err){
+        return res.status(500).json({
+            message:"Something went wrong"
+        });
+    }
+}
+
+module.exports = {registerUser,loginUser};
