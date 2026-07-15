@@ -14,5 +14,6 @@ app.get("/",(req, res) =>{
     res.send("Working");
 });
 
+app.use("/auth",authRoutes);
 startServer();
 
