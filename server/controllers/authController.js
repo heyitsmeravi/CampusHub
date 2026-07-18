@@ -53,6 +53,11 @@ const loginUser = async (req,res) => {
                 message:"Invalid email or password"
             });
         }
+        if (!user.isActive){
+            return res.status(403).json ({
+                message:"Account has been deactivated."
+            })
+        }
         const canLogin = await bcrypt.compare(password,user.password);
         if(!canLogin){
             return res.status(401).json({

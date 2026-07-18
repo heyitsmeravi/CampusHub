@@ -2,7 +2,7 @@ const User = require("../models/User");
 const mongoose = require("mongoose");
 const getAllUsers = async (req, res) =>{
     try{
-        const users = await User.find().select("-password");
+        const users = await User.find({isActive:true}).select("-password");
         // console.log(req);
         return res.status(200).json({
             message:"Data fetched successfully",
@@ -75,13 +75,13 @@ const updateMyProfile = async (req , res) =>{
                     message:`${field} can't be updated`
                 });
             }
-            if (field === "name"){
-                if (req.body[field].trim() === ""){
-                    return res.status(400).json({
-                        message:"Name cannot be empty."
-                    });
-                }
-            }
+            // if (field === "name"){
+            //     if (req.body[field] === ""){
+            //         return res.status(400).json({
+            //             message:"Name cannot be empty."
+            //         });
+            //     }
+            // }
         }
         const changes = await User.findByIdAndUpdate(req.user.id,req.body,{
             returnDocument:"after",
@@ -111,6 +111,31 @@ const updateMyProfile = async (req , res) =>{
         });
     }
 }
+
+const deleteMyProfile = async (req, res) =>{
+    try{
+        const user = await User.findByIdAndUpdate(req.user.id,{
+            isActive:false
+        },{
+            returnDocument:"after"
+        });
+        if (user == null){
+            return res.status(404).json({
+                message:"User not found"
+            });
+        }
+        const {password, ...userWithoutPassword} = user.toObject();
+        return res.status(200).json({
+            message:"Account deactivated successfully",
+            user:userWithoutPassword
+        });
+    } catch (err){
+        return res.status(500).send({
+            message:"Something went wrong"
+        });
+    }
+}
 module.exports = {
-    getAllUsers , getMyProfile , getUser , updateMyProfile
+    getAllUsers , getMyProfile , getUser , updateMyProfile ,
+    deleteMyProfile
 }
