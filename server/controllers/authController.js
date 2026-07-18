@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const registerUser = async (req,res) =>{
     const {name, email, password, role } = req.body;
-    console.log(req.body);
+    console.log("auth:  ",req.body);
     if (!name || !email || !role || !password){
         return res.status(400).json({
             message: "All fields are required"
@@ -38,7 +38,7 @@ const registerUser = async (req,res) =>{
 }
 const loginUser = async (req,res) => {
     const { email, password } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     if (!email || !password){
         return res.status(400).json({
             message:"all fields are required"
@@ -81,5 +81,42 @@ const loginUser = async (req,res) => {
         });
     }
 }
-
-module.exports = {registerUser,loginUser};
+const changePassword = async (req, res) =>{
+    const {oldPassword, newPassword} = req.body;
+    if (!oldPassword || !newPassword ) return res.status(404).json({
+        message:"All fields are required"
+    });
+    if (oldPassword === newPassword){
+        return res.status(401).json({
+            message:"New password can't be old password"
+        });
+    }
+    try {
+        const user = await User.findById(req.user.id);
+        if (user == null){
+            return res.status(404).json({
+                message:"User not found"
+            });
+        }
+        console.log("before:",user);
+        const canChangePassword = await bcrypt.compare(oldPassword,user.password);
+        if (!canChangePassword){
+            return res.status(404).json({
+                message:"Incorrect password entered"
+            });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword,10);
+        user.password = hashedPassword;
+        await user.save();
+        console.log("after:",user);
+        return res.status(200).json({
+            message:"Password changed successfully",
+            user
+        })
+    }catch (err){
+        return res.status(500).json({
+            message:"Something went wrong"
+        });
+    }
+}
+module.exports = {registerUser,loginUser , changePassword};
