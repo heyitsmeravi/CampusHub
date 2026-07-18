@@ -83,7 +83,7 @@ const loginUser = async (req,res) => {
 }
 const changePassword = async (req, res) =>{
     const {oldPassword, newPassword} = req.body;
-    if (!oldPassword || !newPassword ) return res.status(404).json({
+    if (!oldPassword || !newPassword ) return res.status(400).json({
         message:"All fields are required"
     });
     if (oldPassword === newPassword){
@@ -98,20 +98,19 @@ const changePassword = async (req, res) =>{
                 message:"User not found"
             });
         }
-        console.log("before:",user);
+        // console.log("before:",user);
         const canChangePassword = await bcrypt.compare(oldPassword,user.password);
         if (!canChangePassword){
-            return res.status(404).json({
+            return res.status(401).json({
                 message:"Incorrect password entered"
             });
         }
         const hashedPassword = await bcrypt.hash(newPassword,10);
         user.password = hashedPassword;
         await user.save();
-        console.log("after:",user);
+        // console.log("after:",user);
         return res.status(200).json({
-            message:"Password changed successfully",
-            user
+            message:"Password changed successfully"
         })
     }catch (err){
         return res.status(500).json({
