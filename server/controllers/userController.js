@@ -60,7 +60,7 @@ const getUser = async (req, res) => {
 }
 const ALLOWED_PROFILE_FIELDS = [
             "name"
-        ];
+];
 const updateMyProfile = async (req , res) =>{
     try {
         const requestedFields = Object.keys(req.body);

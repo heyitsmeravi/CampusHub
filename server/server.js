@@ -7,6 +7,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const studentRoutes = require('./routes/studentRoutes');
+const facultyRoutes = require('./routes/facultyRoutes');
 app.use(express.json());
 const startServer = async () =>{
     await connectDB();
@@ -22,5 +23,6 @@ app.get("/",(req, res) =>{
 app.use("/auth",authRoutes);
 app.use("/users",userRoutes);
 app.use("/students",studentRoutes);
+app.use("/faculty",facultyRoutes);
 startServer();
 
